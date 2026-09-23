@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "LavaBMS Drug Expiry Alerts",
+  "version": "1.0.0",
+  "description": "Checks medicine names entered in LavaBMS and displays expiry alerts.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "http://lava-server:62/*",
+    "http://localhost:*/",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://lava-server:62/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "icons": {}
+}

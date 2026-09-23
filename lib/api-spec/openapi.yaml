@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: drugs
+    description: Drug inventory and expiry matching
+  - name: dashboard
+    description: Dashboard summary data
 paths:
   /healthz:
     get:
@@ -24,6 +28,123 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /drugs:
+    get:
+      operationId: listDrugs
+      tags: [drugs]
+      summary: List drug records
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [all, good, expiring, expired]
+      responses:
+        "200":
+          description: Drug records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Drug"
+    post:
+      operationId: createDrug
+      tags: [drugs]
+      summary: Add a drug record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DrugInput"
+      responses:
+        "201":
+          description: Created drug
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Drug"
+  /drugs/search:
+    get:
+      operationId: searchDrugs
+      tags: [drugs]
+      summary: Search drugs for the browser extension
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Matching drugs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DrugMatch"
+  /drugs/{id}:
+    patch:
+      operationId: updateDrug
+      tags: [drugs]
+      summary: Update a drug record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DrugUpdate"
+      responses:
+        "200":
+          description: Updated drug
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Drug"
+        "404":
+          description: Drug not found
+    delete:
+      operationId: deleteDrug
+      tags: [drugs]
+      summary: Delete a drug record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Drug not found
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get expiry status summary
+      responses:
+        "200":
+          description: Summary counts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +154,121 @@ components:
           type: string
       required:
         - status
+    Drug:
+      type: object
+      required:
+        - id
+        - name
+        - alternativeNames
+        - brandNames
+        - expiryDate
+        - status
+        - daysUntilExpiry
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        alternativeNames:
+          type: array
+          items:
+            type: string
+        brandNames:
+          type: array
+          items:
+            type: string
+        expiryDate:
+          type: string
+          format: date
+        batchNumber:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [good, expiring, expired]
+        daysUntilExpiry:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    DrugMatch:
+      allOf:
+        - $ref: "#/components/schemas/Drug"
+        - type: object
+          required:
+            - matchedTerm
+          properties:
+            matchedTerm:
+              type: string
+    DrugInput:
+      type: object
+      required:
+        - name
+        - expiryDate
+      properties:
+        name:
+          type: string
+          minLength: 1
+        alternativeNames:
+          type: array
+          items:
+            type: string
+        brandNames:
+          type: array
+          items:
+            type: string
+        expiryDate:
+          type: string
+          format: date
+        batchNumber:
+          type: string
+        notes:
+          type: string
+    DrugUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        alternativeNames:
+          type: array
+          items:
+            type: string
+        brandNames:
+          type: array
+          items:
+            type: string
+        expiryDate:
+          type: string
+          format: date
+        batchNumber:
+          type: string
+        notes:
+          type: string
+    DashboardSummary:
+      type: object
+      required:
+        - total
+        - good
+        - expiring
+        - expired
+        - updatedAt
+      properties:
+        total:
+          type: integer
+        good:
+          type: integer
+        expiring:
+          type: integer
+        expired:
+          type: integer
+        updatedAt:
+          type: string
+          format: date-time
 

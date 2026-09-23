@@ -1,6 +1,6 @@
-# [Project name]
+# LavaBMS Drug Expiry Manager
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+An admin console and Chrome extension that tracks medicine expiry dates and shows matching expiry alerts inside LavaBMS POS.
 
 ## Run & Operate
 
@@ -22,23 +22,35 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/drug-expiry-manager` — the admin console and downloadable extension package
+- `artifacts/api-server/src/routes/drugs.ts` — drug CRUD, matching, and dashboard endpoints
+- `artifacts/api-server/src/lib/drug-utils.ts` — shared match and expiry-status rules
+- `lib/db/src/schema/drugs.ts` — PostgreSQL source-of-truth for drug records
+- `lib/api-spec/openapi.yaml` — source-of-truth for the typed API contract
+- `artifacts/drug-expiry-manager/public/extension` — unpacked Chrome extension source
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Expiry status is derived from the calendar date on every read: expired is before today, expiring is today through 90 days, and good is beyond 90 days.
+- LavaBMS matching is case-insensitive substring matching across the generic name, alternative names, and brand names.
+- The extension uses a configurable API URL stored in Chrome sync storage so the same package can point to a development or published console.
+- The extension fails quietly when the API is unavailable so it never blocks medicine entry in the POS.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Dashboard with good, close-to-expiry, and expired counts
+- Searchable drug records with create, edit, delete, batch, notes, alternative names, and brand names
+- LavaBMS setup page with health status, copyable API URL, and downloadable Chrome extension
+- Extension alert colors: light green for good dates, light yellow for close to expiry, and light red for expired drugs
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+The user wants drug names to match against generic, alternative, and brand names in LavaBMS.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- The Chrome extension must be configured from its options page with the admin console URL ending in `/api`.
+- The extension content script currently targets `http://lava-server:62/*`, matching the local LavaBMS URL supplied by the user.
 
 ## Pointers
 

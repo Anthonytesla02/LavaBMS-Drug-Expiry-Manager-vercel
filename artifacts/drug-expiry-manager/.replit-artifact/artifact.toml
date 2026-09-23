@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "LavaBMS Drug Expiry Manager"
+description = "An admin console and browser extension companion for managing drug expiry dates and surfacing matching alerts inside LavaBMS POS."
+version = "1.0.0"
+id = "artifacts/drug-expiry-manager"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18992
+
+[services.development]
+run = "pnpm --filter @workspace/drug-expiry-manager run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/drug-expiry-manager", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/drug-expiry-manager/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18992"
+BASE_PATH = "/"
