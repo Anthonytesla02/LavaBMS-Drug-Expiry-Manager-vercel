@@ -1,0 +1,5 @@
+{
+  "framework": "express",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": null
+}
