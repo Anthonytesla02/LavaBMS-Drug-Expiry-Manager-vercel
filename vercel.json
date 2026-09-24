@@ -2,11 +2,6 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm --filter @workspace/drug-expiry-manager run build",
   "outputDirectory": "artifacts/drug-expiry-manager/dist/public",
-  "functions": {
-    "api/[...path].ts": {
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
